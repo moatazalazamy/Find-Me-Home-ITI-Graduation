@@ -30,6 +30,16 @@ class Property(models.Model):
     size = models.CharField(max_length=20,blank=False)
 
     
+    
+class Comment(models.Model):
+   # rate = models.IntegerField()
+    comment = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+   # reports = models.IntegerField(default = 0)
+
+    def __str__(self):
+        return self.project.describiton
 
 
 

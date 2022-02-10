@@ -8,5 +8,6 @@ urlpatterns = [
     re_path(r'^api/property$', views.property_list),
     re_path(r'^api/property/user$', views.user_property_list),
     re_path(r'^api/property/(?P<pk>[0-9]+)$', views.del_property),
+    re_path(r'^api/allproperty$', views.all_property),
     path('', include(router.urls)),
 ]

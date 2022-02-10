@@ -8,7 +8,26 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+
+@api_view(['GET'])
+def all_property(request):
+    if request.method == 'GET':
+        properties = Property.objects.all()
+        user = request.GET.get('user')
+        if user:
+            properties = properties.filter(seller__name=user)
+
+            # price = request.GET.get('price')
+            # if price:
+            #     if price == "max":
+            #         properties = properties.order_by('-price')
+            #     elif price =='min':
+            #         properties = properties.order_by('price')
+        properties_serializer = PropertySerializer(properties, many=True)
+            
+        return JsonResponse(properties_serializer.data, safe=False)
+
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def property_list(request):
     # GET list of propertys, POST a new property, DELETE all propertys
@@ -28,7 +47,7 @@ def property_list(request):
         
         return JsonResponse(properties_serializer.data, safe=False)
         # 'safe=False' for objects serialization
-    elif request.method == 'POST':
+    if request.method == 'POST':
         property_data = JSONParser().parse(request)
         property_data['seller'] = request.user.id
         property_serializer = PropertySerializer(data=property_data)

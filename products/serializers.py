@@ -1,3 +1,4 @@
+from dataclasses import field
 from rest_framework import serializers
 from products.models import Governorate 
 from products.models import Property
@@ -5,12 +6,13 @@ from users.serializers import UserSerializer
 from users.models import User
 
 class PropertySerializer(serializers.ModelSerializer):
-   # seller = serializers.SerializerMethodField()
+    seller = serializers.SerializerMethodField()
   #  governorate_id = serializers.RelatedField(source='governorate',read_only=True)
    # seller_id = serializers.RelatedField(source='seller',read_only=True)
-    seller = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),many=False)
-    governorate = serializers.PrimaryKeyRelatedField(queryset=Governorate.objects.all(),many=False)
- 
+   # seller = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),many=False)
+   # governorate = serializers.PrimaryKeyRelatedField(queryset=Governorate.objects.all(),many=False)
+    governorate = serializers.SerializerMethodField()
+
     def get_seller(self, obj):
         return obj.seller.name
     
@@ -19,6 +21,13 @@ class PropertySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Property
-        fields = ('id','describiton','price','seller','size','governorate' , 'area','street','building_number','propert_number')
-
+       # fields = ('id','describiton','price','seller','size','governorate' , 'area','street','building_number','propert_number')
+        fields = '__all__'
 	
+ 
+class GovernorateSerializer(serializers.ModelSerializer):
+     
+    class Meta:
+        model= Governorate
+        fields = '__all__'
+         

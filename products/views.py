@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
-from products.models import Property
-from products.serializers import PropertySerializer
+from products.models import Governorate, Property
+from products.serializers import PropertySerializer ,GovernorateSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+
+from django.db.models import Avg, Count, Q, Sum
 
 
 
@@ -89,3 +91,21 @@ def user_property_list(request):
     
     
     
+    
+@api_view(['GET'])
+def all_governorate(request):
+    governorate  = Governorate.objects.all()
+    governorate_serializer = GovernorateSerializer(governorate, many=True)
+    return JsonResponse(governorate_serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def search_prop(request,searchtext):
+   # query = request.GET.get('searchBox') #get the input text from template
+        #filter and save the returned result into result array 
+    if request.method == 'GET':   
+        print(searchtext)
+        result = Property.objects.filter(Q(describiton__icontains = searchtext))
+        
+        governorate_serializer = PropertySerializer(result, many=True)
+        return JsonResponse(governorate_serializer.data, safe=False)

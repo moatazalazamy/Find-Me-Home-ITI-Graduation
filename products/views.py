@@ -1,69 +1,128 @@
+from pydoc import describe
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
-from products.models import Product
-from products.serializers import ProductSerializer
+from products.models import Governorate, Property
+from products.serializers import PropertySerializer ,GovernorateSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework import viewsets
 
-class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-        #return Response(serializer.data)
+from django.db.models import Avg, Count, Q, Sum
 
-@api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def product_list(request):
-    # GET list of products, POST a new product, DELETE all products
+
+
+@api_view(['GET'])
+def all_property(request):
     if request.method == 'GET':
-        products = Product.objects.all()
+        properties = Property.objects.all()
         user = request.GET.get('user')
         if user:
-            products = products.filter(seller__name=user)
-        price = request.GET.get('price')
-        if price:
-            if price == "max":
-                products = products.order_by('-price')
-            elif price =='min':
-                products = products.order_by('price')
-        products_serializer = ProductSerializer(products, many=True)
-        return JsonResponse(products_serializer.data, safe=False)
-    elif request.method == 'POST':
-        product_data = JSONParser().parse(request)
-        product_data['seller'] = request.user.id
-        print(product_data)
-        product_serializer = ProductSerializer(data=product_data)
-        if product_serializer.is_valid():
-            product_serializer.save()
-            return JsonResponse(product_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            properties = properties.filter(seller__name=user)
 
-@api_view(['PUT','DELETE'])
+            # price = request.GET.get('price')
+            # if price:
+            #     if price == "max":
+            #         properties = properties.order_by('-price')
+            #     elif price =='min':
+            #         properties = properties.order_by('price')
+        properties_serializer = PropertySerializer(properties, many=True)
+            
+        return JsonResponse(properties_serializer.data, safe=False)
+
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def del_product(request,pk):
-    # GET list of products, POST a new product, DELETE all products
+def property_list(request):
+    # GET list of propertys, POST a new property, DELETE all propertys
+    if request.method == 'GET':
+        properties = Property.objects.all()
+        user = request.GET.get('user')
+        if user:
+            properties = properties.filter(seller__name=user)
+
+        # price = request.GET.get('price')
+        # if price:
+        #     if price == "max":
+        #         properties = properties.order_by('-price')
+        #     elif price =='min':
+        #         properties = properties.order_by('price')
+        properties_serializer = PropertySerializer(properties, many=True)
+        
+        return JsonResponse(properties_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+    if request.method == 'POST':
+        property_data = JSONParser().parse(request)
+        property_data['seller'] = request.user.id
+        property_serializer = PropertySerializer(data=property_data)
+        if property_serializer.is_valid():
+            property_serializer.save()
+            return JsonResponse(property_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(property_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+@api_view(['PUT','DELETE','PATCH'])
+@permission_classes([IsAuthenticated])
+def del_property(request,pk):
+    # GET list of propertys, POST a new property, DELETE all propertys
     if request.method == 'DELETE':
-        product = Product.objects.get(pk=pk)
-        product.delete() 
-        return JsonResponse({'message': 'Product was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-    elif request.method == 'PUT': 
-        product = Product.objects.get(pk=pk)
-        product_data = JSONParser().parse(request) 
-        product_serializer = ProductSerializer(product, data=product_data) 
-        if product_serializer.is_valid(): 
-            product_serializer.save() 
-            return JsonResponse(product_serializer.data) 
-        return JsonResponse(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        property = Property.objects.get(id=pk)
+        property.delete() 
+        return JsonResponse({'message': 'property was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    elif request.method == 'PATCH': 
+        property = Property.objects.get(id=pk)
+        property_data = JSONParser().parse(request) 
+        property_serializer = PropertySerializer(property, data=property_data, partial=True) 
+        if property_serializer.is_valid(): 
+            property_serializer.save() 
+            return JsonResponse(property_serializer.data) 
+        return JsonResponse(property_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def user_product_list(request):
-    # GET all published products
-    products = Product.objects.filter(seller=request.user)
+def user_property_list(request):
+    # GET all published propertys
+    property = Property.objects.filter(seller=request.user)
         
     if request.method == 'GET': 
-        products_serializer = ProductSerializer(products, many=True)
-        return JsonResponse(products_serializer.data, safe=False)
+        propertys_serializer = PropertySerializer(property, many=True)
+        return JsonResponse(propertys_serializer.data, safe=False)
+    
+    
+    
+    
+@api_view(['GET'])
+def all_governorate(request):
+    governorate  = Governorate.objects.all()
+    governorate_serializer = GovernorateSerializer(governorate, many=True)
+    return JsonResponse(governorate_serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def search_prop(request,searchtext):
+   # query = request.GET.get('searchBox') #get the input text from template
+        #filter and save the returned result into result array 
+    if request.method == 'GET':   
+        print(searchtext)
+        result = Property.objects.filter(Q(describiton__icontains = searchtext))
+        
+        property_serializer = PropertySerializer(result, many=True)
+        return JsonResponse(property_serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def filterByGover(request,pk):
+    if request.method == 'GET':   
+        print(pk)
+       
+
+        gov_values = pk.split(",")
+        print(gov_values)
+        result = Property.objects.filter(governorate__id__in = gov_values)
+      #  result = Property.objects.filter(id = pk)
+    
+        
+        property_serializer = PropertySerializer(result, many=True)
+        return JsonResponse(property_serializer.data, safe=False)

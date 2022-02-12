@@ -14,3 +14,4 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return f"{self.name}"
+    

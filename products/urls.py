@@ -11,5 +11,7 @@ urlpatterns = [
     re_path(r'^api/allproperty$', views.all_property),
     re_path(r'^api/allgovernorate$', views.all_governorate),
     re_path(r'^api/search/(?P<searchtext>.+)$', views.search_prop),
+    re_path(r'^api/filter/(?P<pk>[0-9]+)$', views.filterByGover),
+    
     path('', include(router.urls)),
 ]

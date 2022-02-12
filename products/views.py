@@ -1,3 +1,4 @@
+from pydoc import describe
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
@@ -107,5 +108,17 @@ def search_prop(request,searchtext):
         print(searchtext)
         result = Property.objects.filter(Q(describiton__icontains = searchtext))
         
-        governorate_serializer = PropertySerializer(result, many=True)
-        return JsonResponse(governorate_serializer.data, safe=False)
+        property_serializer = PropertySerializer(result, many=True)
+        return JsonResponse(property_serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def filterByGover(request,pk):
+    if request.method == 'GET':   
+        print(pk)
+        result = Property.objects.filter(governorate__id= pk)
+      #  result = Property.objects.filter(id = pk)
+    
+        
+        property_serializer = PropertySerializer(result, many=True)
+        return JsonResponse(property_serializer.data, safe=False)

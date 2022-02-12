@@ -116,7 +116,11 @@ def search_prop(request,searchtext):
 def filterByGover(request,pk):
     if request.method == 'GET':   
         print(pk)
-        result = Property.objects.filter(governorate__id= pk)
+       
+
+        gov_values = pk.split(",")
+        print(gov_values)
+        result = Property.objects.filter(governorate__id__in = gov_values)
       #  result = Property.objects.filter(id = pk)
     
         

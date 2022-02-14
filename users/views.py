@@ -6,6 +6,8 @@ from .models import User
 import jwt, datetime
 from django.conf import settings
 
+from django.http.response import JsonResponse
+
 
 # Create your views here.
 class RegisterView(APIView):
@@ -38,10 +40,16 @@ class LoginView(APIView):
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
         response = Response()
+        
+        user = User.objects.filter(id=payload['user_id']).first()
+        serializer = UserSerializer(user)
 
-        response.set_cookie(key='jwt', value=token, httponly=True)
+
+       # response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
-            'jwt': token
+            'jwt': token,
+            'user': serializer.data
+
         }
         return response
 
@@ -49,7 +57,10 @@ class LoginView(APIView):
 class UserView(APIView):
 
     def get(self, request):
-        token = request.COOKIES.get('jwt')
+       # token = request.COOKIES.get('jwt')
+        token = request.headers.get('jwt')
+
+        
 
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
@@ -73,3 +84,18 @@ class LogoutView(APIView):
             'message': 'success'
         }
         return response
+    
+    
+class Allusers(APIView):
+    def get(self,request):
+        user = User.objects.all()
+        users = UserSerializer(user, many=True)
+        #response.set_cookie(key='jwt', value=token, httponly=True)
+        usrdata = users.data
+        usrnames = []
+        #print(usrdata)
+        for i in range(len(user)):
+            a = list(usrdata[i].values())
+            usrnames.append(a[1])
+            print(usrnames)
+        return JsonResponse(usrnames, safe=False)

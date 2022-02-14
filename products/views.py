@@ -1,14 +1,16 @@
 from pydoc import describe
+from unittest import result
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
-from products.models import Governorate, Property
-from products.serializers import PropertySerializer ,GovernorateSerializer
+from products.models import Governorate, Property ,PropertyImage
+from products.serializers import PropertySerializer ,GovernorateSerializer,PropertyADDSerializer,PropertyImgSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from django.db.models import Avg, Count, Q, Sum
+from django.core.files.storage import default_storage
 
 
 
@@ -46,14 +48,14 @@ def property_list(request):
         #         properties = properties.order_by('-price')
         #     elif price =='min':
         #         properties = properties.order_by('price')
-        properties_serializer = PropertySerializer(properties, many=True)
+        properties_serializer = PropertyADDSerializer(properties, many=True)
         
         return JsonResponse(properties_serializer.data, safe=False)
         # 'safe=False' for objects serialization
     if request.method == 'POST':
         property_data = JSONParser().parse(request)
         property_data['seller'] = request.user.id
-        property_serializer = PropertySerializer(data=property_data)
+        property_serializer = PropertyADDSerializer(data=property_data)
         if property_serializer.is_valid():
             property_serializer.save()
             return JsonResponse(property_serializer.data, status=status.HTTP_201_CREATED) 
@@ -73,7 +75,7 @@ def del_property(request,pk):
     elif request.method == 'PATCH': 
         property = Property.objects.get(id=pk)
         property_data = JSONParser().parse(request) 
-        property_serializer = PropertySerializer(property, data=property_data, partial=True) 
+        property_serializer = PropertyADDSerializer(property, data=property_data, partial=True) 
         if property_serializer.is_valid(): 
             property_serializer.save() 
             return JsonResponse(property_serializer.data) 
@@ -126,3 +128,26 @@ def filterByGover(request,pk):
         
         property_serializer = PropertySerializer(result, many=True)
         return JsonResponse(property_serializer.data, safe=False)
+    
+    
+@api_view(['POST','GET'])
+def add_image(request):
+    if request.method == 'POST':
+        # file=request.FILES['file']
+        propert_images = JSONParser().parse(request)
+        print(propert_images)
+        propertyImg_serializer = PropertyImgSerializer(data=propert_images)
+        
+        if propertyImg_serializer.is_valid():
+            propertyImg_serializer.save()
+            return JsonResponse(propertyImg_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # else:
+    #     result = PropertyImage.objects.filter(property__id__in = pk)
+    #     propertyImg_serializer = PropertyImgSerializer(result,many=True)
+    #     return JsonResponse(propertyImg_serializer.data, safe=False)
+
+            
+        
+    

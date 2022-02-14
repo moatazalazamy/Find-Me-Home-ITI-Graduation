@@ -2,7 +2,8 @@
 from django.db import models
 
 from users.models import User
-
+import uuid
+import os
 # Create your models here.
 
 
@@ -28,6 +29,22 @@ class Property(models.Model):
     price = models.IntegerField( default='',blank=False)
     describiton = models.TextField()
     size = models.CharField(max_length=20,blank=False)
+
+
+
+# function to generate unique name for uploaded imgs
+def get_file_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('properties/', filename)
+
+
+class PropertyImage(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    img = models.ImageField(upload_to=get_file_path)
+
+    def __str__(self):
+        return self.project.title
 
     
     

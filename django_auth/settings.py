@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'products.apps.ProductsConfig',
-
+    'chatapp'
 ]
 
 MIDDLEWARE = [

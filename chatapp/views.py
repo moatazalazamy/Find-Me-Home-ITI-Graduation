@@ -5,6 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from .serializers import ChatSerializer
 from rest_framework.response import Response
 from users.models import User
+from users.serializers import UserSerializer
 from .models import Chat
 from django.http.response import JsonResponse
 from rest_framework.permissions import IsAuthenticated
@@ -35,8 +36,10 @@ class ChatViewSet(ModelViewSet):
             if message.sender_id not in result and message.sender_id != sender.id :
                 result.append(message.sender_id)
             if message.reciever_id not in result and message.reciever_id != sender.id:
-                result.append(message.reciever_id)    
-        return JsonResponse(result, safe=False) 
+                result.append(message.reciever_id)
+        queryset = User.objects.filter(id__in=result)
+        serializer = UserSerializer(queryset, many=True)
+        return Response(serializer.data) 
 
     def retrieve(self, request, pk, *args, **kwargs):
         sender = request.user

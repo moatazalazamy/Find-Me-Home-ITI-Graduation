@@ -12,6 +12,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Count, Q, Sum
 from django.core.files.storage import default_storage
 
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status
+
+
 
 
 @api_view(['GET'])
@@ -135,12 +141,18 @@ def add_image(request):
     if request.method == 'POST':
         # file=request.FILES['file']
         propert_images = JSONParser().parse(request)
-        print(propert_images)
         propertyImg_serializer = PropertyImgSerializer(data=propert_images)
-        
+        print(propert_images)
+        print("==============================")
+        print(propert_images['image'])
+
+        # with open(propert_images['image'], encoding="utf8", errors='ignore') as f:
+            
+            
+            
         if propertyImg_serializer.is_valid():
-            propertyImg_serializer.save()
-            return JsonResponse(propertyImg_serializer.data, status=status.HTTP_201_CREATED) 
+                propertyImg_serializer.save()
+                return JsonResponse(propertyImg_serializer.data, status=status.HTTP_201_CREATED) 
         return JsonResponse(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # else:
@@ -151,3 +163,19 @@ def add_image(request):
             
         
     
+class PostView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request, *args, **kwargs):
+        images = PropertyImage.objects.all()
+        serializer = PropertyImgSerializer(images, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        propertyImg_serializer = PropertyImgSerializer(data=request.data)
+        if propertyImg_serializer.is_valid():
+            propertyImg_serializer.save()
+            return Response(propertyImg_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print('error', propertyImg_serializer.errors)
+            return Response(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

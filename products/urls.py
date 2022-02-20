@@ -12,7 +12,7 @@ urlpatterns = [
     re_path(r'^api/allgovernorate$', views.all_governorate),
     re_path(r'^api/search/(?P<searchtext>.+)$', views.search_prop),
     re_path(r'^api/filter/(?P<pk>.+)$', views.filterByGover),
-    re_path(r'^api/addimages$', views.add_image),
+    re_path(r'^api/addimages$', views.PostView.as_view()),
 
     
     path('', include(router.urls)),

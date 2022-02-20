@@ -1,3 +1,5 @@
+from email.policy import default
+from unicodedata import name
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -5,9 +7,9 @@ from .serializers import UserSerializer
 from .models import User
 import jwt, datetime
 from django.conf import settings
-
 from django.http.response import JsonResponse
-
+from rest_framework.parsers import JSONParser 
+from itertools import islice
 
 # Create your views here.
 class RegisterView(APIView):
@@ -40,16 +42,12 @@ class LoginView(APIView):
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
         response = Response()
-        
         user = User.objects.filter(id=payload['user_id']).first()
         serializer = UserSerializer(user)
-
-
-       # response.set_cookie(key='jwt', value=token, httponly=True)
+        #response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
             'jwt': token,
             'user': serializer.data
-
         }
         return response
 
@@ -57,11 +55,10 @@ class LoginView(APIView):
 class UserView(APIView):
 
     def get(self, request):
-       # token = request.COOKIES.get('jwt')
+        #token = request.COOKIES.get('jwt')
+        print("JASDASFSG")
         token = request.headers.get('jwt')
-
-        
-
+        print(token)
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
 
@@ -71,21 +68,16 @@ class UserView(APIView):
             raise AuthenticationFailed('Unauthenticated!')
         except:
             raise AuthenticationFailed('Unauthenticated!')
-        user = User.objects.filter(id=payload['user_id']).first()
+
+        try:
+            id = request.query_params["id"]
+            if id != None:
+                user = User.objects.filter(id=id).first()
+        except:
+            user = User.objects.filter(id=payload['user_id']).first()    
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
-
-class LogoutView(APIView):
-    def post(self, request):
-        response = Response()
-        response.delete_cookie('jwt')
-        response.data = {
-            'message': 'success'
-        }
-        return response
-    
-    
 class Allusers(APIView):
     def get(self,request):
         user = User.objects.all()
@@ -99,3 +91,12 @@ class Allusers(APIView):
             usrnames.append(a[1])
             print(usrnames)
         return JsonResponse(usrnames, safe=False)
+
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response()
+        response.delete_cookie('jwt')
+        response.data = {
+            'message': 'success'
+        }
+        return response

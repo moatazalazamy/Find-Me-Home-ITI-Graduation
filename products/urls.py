@@ -13,7 +13,6 @@ urlpatterns = [
     re_path(r'^api/search/(?P<searchtext>.+)$', views.search_prop),
     re_path(r'^api/filter/(?P<pk>.+)$', views.filterByGover),
     re_path(r'^api/addimages$', views.PostView.as_view()),
-
-    
+    re_path(r'^api/comment$', views.comment_list),    
     path('', include(router.urls)),
 ]

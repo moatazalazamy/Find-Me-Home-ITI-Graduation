@@ -31,6 +31,12 @@ class Property(models.Model):
     size = models.CharField(max_length=20,blank=False)
 
 
+class Comments(models.Model):
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField(max_length=255, default="")
+    propty = models.ForeignKey(Property, on_delete=models.CASCADE)
+
+
 
 # function to generate unique name for uploaded imgs
 def get_file_path(instance, filename):
@@ -45,20 +51,5 @@ class PropertyImage(models.Model):
 
     def __str__(self):
         return self.project.title
-
-    
-    
-class Comment(models.Model):
-   # rate = models.IntegerField()
-    comment = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-   # reports = models.IntegerField(default = 0)
-
-    def __str__(self):
-        return self.project.describiton
-
-
-
 
     

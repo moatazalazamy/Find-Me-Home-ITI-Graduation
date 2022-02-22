@@ -4,8 +4,8 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
-from products.models import Governorate, Property ,PropertyImage
-from products.serializers import PropertySerializer ,GovernorateSerializer,PropertyADDSerializer,PropertyImgSerializer
+from products.models import Governorate, Property ,PropertyImage, Comments
+from products.serializers import PropertySerializer ,GovernorateSerializer,PropertyADDSerializer,PropertyImgSerializer,CommentsSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
@@ -179,3 +179,23 @@ class PostView(APIView):
         else:
             print('error', propertyImg_serializer.errors)
             return Response(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def comment_list(request):
+    if request.method == 'GET':
+        prop = request.GET.get("prop")
+        if prop:
+            comments = Comments.objects.filter(propty=prop)
+            comments_serializer = CommentsSerializer(comments, many=True)
+            return JsonResponse(comments_serializer.data, safe=False)
+    elif request.method == 'POST':
+        comment_data = JSONParser().parse(request)
+        comment_data['commenter'] = request.user.id
+        print(comment_data)
+        comment_serializer = CommentsSerializer(data=comment_data)
+        if comment_serializer.is_valid():
+            comment_serializer.save()
+            return JsonResponse(comment_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

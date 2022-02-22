@@ -2,7 +2,7 @@ from dataclasses import field, fields
 from xml.parsers.expat import model
 from rest_framework import serializers
 from products.models import Governorate 
-from products.models import Property ,PropertyImage
+from products.models import Property ,PropertyImage,Comments
 from users.serializers import UserSerializer
 from users.models import User
 
@@ -121,3 +121,10 @@ class GovernorateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
+class CommentsSerializer(serializers.ModelSerializer):
+    commenter_name = serializers.SerializerMethodField()
+    def get_commenter_name(self, obj):
+        return obj.commenter.name
+    class Meta:
+        model = Comments
+        fields = ('id','content','propty','commenter','commenter_name')

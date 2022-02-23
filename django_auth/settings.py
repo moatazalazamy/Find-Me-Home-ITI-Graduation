@@ -126,6 +126,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
+
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -140,7 +141,6 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
-
 REST_FRAMEWORK = {
    
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -151,6 +151,6 @@ REST_FRAMEWORK = {
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = 'D:/ITI/ITI-Grad-Pro/FindMeHome/frontend/findmehome/src/media'
 
 

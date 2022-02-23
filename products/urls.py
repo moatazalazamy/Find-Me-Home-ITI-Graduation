@@ -13,6 +13,9 @@ urlpatterns = [
     re_path(r'^api/search/(?P<searchtext>.+)$', views.search_prop),
     re_path(r'^api/filter/(?P<pk>.+)$', views.filterByGover),
     re_path(r'^api/addimages$', views.PostView.as_view()),
+    re_path(r'^api/getimages/(?P<pk>.+)$', views.add_image),
+
+    re_path(r'^api/propinfo/(?P<pk>.+)$', views.get_property),
 
     
     path('', include(router.urls)),

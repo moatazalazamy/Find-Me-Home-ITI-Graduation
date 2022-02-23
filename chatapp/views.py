@@ -2,14 +2,16 @@ from django.dispatch import receiver
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from .serializers import ChatSerializer
+from .serializers import ChatSerializer , RoomSerializer
 from rest_framework.response import Response
 from users.models import User
-from .models import Chat
+from .models import Chat ,Room
 from django.http.response import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from itertools import chain
 from django.db.models import Q
+from rest_framework.decorators import api_view
+
 
 # Create your views here.
 class ChatViewSet(ModelViewSet):
@@ -47,3 +49,12 @@ class ChatViewSet(ModelViewSet):
         messages  =  sorted(messages, key=lambda msg: msg.created_at)
         serializer = ChatSerializer(messages, many=True)
         return JsonResponse(serializer.data, safe=False)
+    
+    
+    
+    
+@api_view(['GET'])
+def all_rooms(request):
+    rooms  = Room.objects.all()
+    rooms_serializer = RoomSerializer(rooms, many=True)
+    return JsonResponse(rooms_serializer.data, safe=False)

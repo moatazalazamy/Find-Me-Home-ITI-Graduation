@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
+from products import serializers
 from products.models import Governorate, Property ,PropertyImage
 from products.serializers import PropertySerializer ,GovernorateSerializer,PropertyADDSerializer,PropertyImgSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -86,6 +87,14 @@ def del_property(request,pk):
             property_serializer.save() 
             return JsonResponse(property_serializer.data) 
         return JsonResponse(property_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    
+@api_view(['GET'])
+def get_property(request,pk):
+    if request.method == 'GET' :
+        property = Property.objects.get(id=pk)
+        property_serializer = PropertySerializer(property)
+        return JsonResponse(property_serializer.data, safe=False)
+
 
 
 @api_view(['GET'])
@@ -136,29 +145,16 @@ def filterByGover(request,pk):
         return JsonResponse(property_serializer.data, safe=False)
     
     
-@api_view(['POST','GET'])
-def add_image(request):
-    if request.method == 'POST':
-        # file=request.FILES['file']
-        propert_images = JSONParser().parse(request)
-        propertyImg_serializer = PropertyImgSerializer(data=propert_images)
-        print(propert_images)
-        print("==============================")
-        print(propert_images['image'])
+@api_view(['GET'])
+def add_image(request,pk):
+    if request.method == 'GET':
+        print(pk)
+        images = PropertyImage.objects.filter(property = pk)
+        serializer = PropertyImgSerializer(images, many=True)
+        return Response(serializer.data)
 
-        # with open(propert_images['image'], encoding="utf8", errors='ignore') as f:
-            
-            
-            
-        if propertyImg_serializer.is_valid():
-                propertyImg_serializer.save()
-                return JsonResponse(propertyImg_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    # else:
-    #     result = PropertyImage.objects.filter(property__id__in = pk)
-    #     propertyImg_serializer = PropertyImgSerializer(result,many=True)
-    #     return JsonResponse(propertyImg_serializer.data, safe=False)
+
+
 
             
         
@@ -179,3 +175,6 @@ class PostView(APIView):
         else:
             print('error', propertyImg_serializer.errors)
             return Response(propertyImg_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+

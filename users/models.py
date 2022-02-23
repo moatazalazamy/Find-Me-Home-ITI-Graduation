@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -16,7 +14,7 @@ class User(AbstractUser):
     email = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
     username = None
-    profileimg = models.ImageField(upload_to=get_file_path, default=NULL)
+    profileimg = models.ImageField(upload_to=get_file_path, default=None)
     phonenum = models.CharField(max_length=11, blank=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

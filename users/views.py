@@ -1,5 +1,3 @@
-from email.policy import default
-from unicodedata import name
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -9,7 +7,8 @@ import jwt, datetime
 from django.conf import settings
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
-from itertools import islice
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 # Create your views here.
 class RegisterView(APIView):
@@ -20,6 +19,18 @@ class RegisterView(APIView):
         return Response(serializer.data)
 
 
+class UpdateUser(APIView):
+    @permission_classes([IsAuthenticated])
+    def put(self,request,pk):
+        user = User.objects.get(pk=pk)
+        user_data = JSONParser().parse(request) 
+        user_serializer = UserSerializer(user, data=user_data,partial = True) 
+        if user_serializer.is_valid(): 
+            user_serializer.save() 
+            return JsonResponse(user_serializer.data) 
+        return JsonResponse(user_serializer.errors)
+    
+    
 class LoginView(APIView):
     def post(self, request):
         email = request.data['email']

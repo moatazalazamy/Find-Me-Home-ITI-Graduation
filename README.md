@@ -13,13 +13,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
   • PostgreSQL 
 </pre>
 
-# Requirements
+# Installation
 ### `pipenv install`
 ### `pipenv shell`
 ### `pipenv install`
 ### `djangorestframework`
 ### `psycopg2`
 ### `python manage.py makemigrations`
-### `python manage.py migrate
-`
+### `python manage.py migrate`
 

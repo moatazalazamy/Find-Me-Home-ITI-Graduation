@@ -1,7 +1,5 @@
 # FindMe Home 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
 # Description
 * Backend Section of 
 “Find Me Home” APP which aims to ease the process of buying or renting properties by allowing users to display their owned ones.
